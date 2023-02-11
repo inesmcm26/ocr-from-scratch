@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import cv2
 import os
 import random
-from google.colab.patches import cv2_imshow
 
 def show_img(img, seg_img):
   """
@@ -41,41 +40,10 @@ def get_seg_img(seg_img):
 
   return final_seg_img
 
-def batch_generator(img_list, seg_list, img_path, seg_path, batch_size):
-  while True:
-    X = []
-    Y = []
-
-    for i in range(batch_size):
-      idx = random.randrange(0, len(img_list))
-
-      img = cv2.imread(f'{img_path}{img_list[idx]}.JPG', 0)
-      # cv2_imshow(img)
-
-      ret, img = cv2.threshold(img, 150, 255, cv2.THRESH_BINARY_INV)
-
-      img = cv2.resize(img, (512, 512))
-      img = np.expand_dims(img, axis = -1)
-      img = img / 255
-
-      seg = cv2.imread(f'{seg_path}{seg_list[idx]}.png', 1)
-
-      # Displaying the image
-      # cv2_imshow(seg)
-
-      seg = get_seg_img(seg)
-
-      X.append(img)
-      Y.append(seg)
-
-      print(np.array(X).shape)
-      print(np.array(Y).shape)
-
-    # suspends the function execution and returns value to the caller
-    yield np.array(X),np.array(Y)
 
 
 
+      
 
 
 

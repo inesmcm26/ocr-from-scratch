@@ -61,9 +61,9 @@ def UNet(pretrained_weigths = None, input_size = (512, 512, 1)):
 
   model = Model(inputs, conv10)
 
-  model.compile(optimizer = Adam(lr = 1e-4), loss = 'binary_crossentropy', metrics = ['accuracy'])
+  model.compile(optimizer = Adam(lr = 1e-2), loss = 'binary_crossentropy', metrics = ['accuracy'])
 
-  if(pretrained_weigths):
+  if (pretrained_weigths):
     model.load_weights(pretrained_weigths)
 
   return model
