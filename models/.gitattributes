@@ -1,0 +1,5 @@
+checkpoint filter=lfs diff=lfs merge=lfs -text
+checkpoint_0.01lr_4batch.data-00000-of-00001 filter=lfs diff=lfs merge=lfs -text
+checkpoint_0.01lr_4batch.index filter=lfs diff=lfs merge=lfs -text
+cp.ckpt.data-00000-of-00001 filter=lfs diff=lfs merge=lfs -text
+cp.ckpt.index filter=lfs diff=lfs merge=lfs -text
