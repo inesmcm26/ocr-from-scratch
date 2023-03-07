@@ -6,24 +6,34 @@ import cv2
 import matplotlib.pyplot as plt
 import matplotlib.ticker as plticker
 
+GRID_H = 16 # yolo output grid height
+GRID_W = 16 # yolo output grid width
+B = 1 # nr of boxes
+C = 1 # nr of classes
+IMG_SHAPE = 512 # input height and width
+
 def read(image_path, label_path):
     # get the image
     image = cv2.imread(image_path)
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     # get the image shape
     image_h, image_w, _ = image.shape
+
+    width_sl = IMG_SHAPE / image_w
+    height_sl = IMG_SHAPE / image_h
+
     # resize
     # TODO: resize maintaining aspect ratio
     # add padding in the direction that is missing pixels
     # adjust x, y, w and h accordingly
-    image = cv2.resize(image, (448, 448))
+    image = cv2.resize(image, (IMG_SHAPE, IMG_SHAPE))
 
     # draw_grids(image)
 
     image = image / 255
 
-    # S x S x (B * 5 + C) = 15 x 15 x (2 * 5 + 1) = 15 x 15 x 11
-    label_matrix = np.zeros([15, 15, 11])
+    # S x S x (B * 5 + C) = 16 x 16 x (1 * 5 + 0) = 16 x 16 x 5
+    label_matrix = np.zeros((GRID_H, GRID_W, C, (B * 5)))
 
     for line in open(label_path, 'r'):
         # read the line
@@ -31,22 +41,21 @@ def read(image_path, label_path):
         # split the line
         l = line.split(',')
         l = np.array(l[:8], dtype=np.int)
-        xmin = l[0]
-        ymin = l[1]
-        xmax = l[4]
-        ymax = l[5]
 
-        # get the class
-        cls = 0
+        xmin = l[0] * width_sl
+        ymin = l[1] * height_sl
+        xmax = l[4] * width_sl
+        ymax = l[5] * height_sl
 
         # get the bounding box coordinated in yolo format
-        x = (xmin + xmax) / 2 / image_w
-        y = (ymin + ymax) / 2 / image_h
-        w = (xmax - xmin) / image_w
-        h = (ymax - ymin) / image_h
+        x = (xmin + xmax) / 2 / IMG_SHAPE
+        y = (ymin + ymax) / 2 / IMG_SHAPE
+
+        w = (xmax - xmin) / IMG_SHAPE
+        h = (ymax - ymin) / IMG_SHAPE
 
         # get the cell coordinates
-        loc = [15 * x, 15 * y]
+        loc = [GRID_W * x, GRID_H * y]
 
         loc_i = int(loc[1])
         loc_j = int(loc[0])
@@ -56,11 +65,9 @@ def read(image_path, label_path):
         x = loc[0] - loc_j
 
 
-        # label_matrix[loc_i, loc_j, :] = [cls == 1, x, y, h, w, confidence]
-        if label_matrix[loc_i, loc_j, 5] == 0:
-            label_matrix[loc_i, loc_j, cls] = 1
-            label_matrix[loc_i, loc_j, 1:5] = [x, y, w, h]
-            label_matrix[loc_i, loc_j, 5] = 1  # confidence
+        # label_matrix[loc_i, loc_j, :] = [pc, x, y, h, w]
+        label_matrix[loc_i, loc_j, 0, 0] == 1 # pc
+        label_matrix[loc_i, loc_j, 0, 1:5] = [x, y, w, h] # bounding box
 
     return image, label_matrix
         
