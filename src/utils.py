@@ -91,3 +91,20 @@ def draw_grids(image):
     axes.imshow(image)
 
     return axes
+
+def resize(size, image, anns):
+    h, w, c = image.shape
+    scale_w = size / w
+    scale_h = size / h
+    scale = min(scale_w, scale_h)
+    h = int(h * scale)
+    w = int(w * scale)
+    padimg = np.zeros((size, size, c), image.dtype)
+    padimg[:h, :w] = cv2.resize(image, (w, h))
+    new_anns = []
+    for ann in anns:
+        poly = np.array(ann['poly']).astype(np.float64)
+        poly *= scale
+        new_ann = {'poly': poly.tolist(), 'text': ann['text']}
+        new_anns.append(new_ann)
+    return padimg, new_anns
